@@ -7,42 +7,1036 @@ info:
 servers:
   - url: https://coverage.seattlecommunitynetwork.org/api
 
+components:
+  schemas:
+    NewUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+          description: User's email address
+        firstName:
+          type: string
+          example: "John"
+          description: User's first name
+        lastName:
+          type: string
+          example: "Doe"
+          description: User's last name
+    LdapCredentials:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: LDAP username (could be DN, uid, or email depending on LDAP configuration)
+          example: "uid=jsmith,ou=users,dc=example,dc=com"
+        password:
+          type: string
+          format: password
+          description: LDAP password
+          example: "password123"
+    CryptoIdentityResponse:
+      type: object
+      properties:
+        sigma_t:
+          type: string
+          description: Cryptographic signature in hexadecimal format
+          example: "30450221009d41a9afd..."
+        sk_t:
+          type: string
+          description: Private key in DER format converted to hexadecimal
+          example: "308184020100301006..."
+        pk_a:
+          type: string
+          description: Public key in DER format converted to hexadecimal
+          example: "3056301006072a8648..."
+    UploadDataRequest:
+      type: object
+      required:
+        - csv
+      properties:
+        csv:
+          type: string
+          description: CSV data to be parsed and stored
+          example: "date,time,coordinate,cell_id,dbm,ping,download_speed,upload_speed\n2021-01-25,18:43:54,47.681932,-122.318292,cell-1,-85.3,-87.1,137.4,5.2,7.3"
+        group:
+          type: string
+          description: Optional group identifier to associate with uploaded data
+          example: "fieldtrip-2021"
+    DeleteGroupRequest:
+      type: object
+      required:
+        - group
+      properties:
+        group:
+          type: string
+          description: Group identifier to delete
+          example: "fieldtrip-2021"
+    GroupList:
+      type: array
+      description: List of unique group identifiers across signal and measurement data
+      items:
+        type: string
+        example: "fieldtrip-2021"
+    User:
+      type: object
+      properties:
+        identity:
+          type: string
+          description: Unique identifier for the user
+          example: "9a8b7c6d5e4f3g2h1i"
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "user@example.com"
+        firstName:
+          type: string
+          description: User's first name
+          example: "John"
+        lastName:
+          type: string
+          description: User's last name
+          example: "Doe"
+        registered:
+          type: boolean
+          description: Whether the user has completed registration
+          example: true
+        issueDate:
+          type: string
+          format: date-time
+          description: Date when the user was issued or account was created
+          example: "2023-03-15T14:30:45.123Z"
+        isEnabled:
+          type: boolean
+          description: Whether the user account is currently enabled
+          example: true
+        publicKey:
+          type: string
+          description: User's public key
+          example: "308201a2300d06092a864886f70d01010105000382018f003082018a02820181..."
+        qrCode:
+          type: string
+          description: QR code data for user registration
+          example: "{\"sigma_t\":\"...\",\"sk_t\":\"...\",\"pk_a\":\"...\"}"
+    UserListResponse:
+      type: object
+      properties:
+        pending:
+          type: array
+          description: List of pending users (not yet registered) whose issue date is within the expiry limit
+          items:
+            $ref: '#/components/schemas/User'
+        registered:
+          type: array
+          description: List of registered users
+          items:
+            $ref: '#/components/schemas/User'
+    ToggleUserRequest:
+      type: object
+      required:
+        - identity
+        - enabled
+      properties:
+        identity:
+          type: string
+          description: Unique identifier of the user to update
+          example: "9a8b7c6d5e4f3g2h1i"
+        enabled:
+          type: boolean
+          description: New enabled status for the user
+          example: true
+    BaseMeasureDataModel:
+      type: object
+      required:
+        - latitude
+        - longitude
+        - timestamp
+        - cell_id
+        - device_id
+        - reported
+      properties:
+        latitude:
+          type: number
+          format: double
+          description: Geographic latitude coordinate
+        longitude:
+          type: number
+          format: double
+          description: Geographic longitude coordinate
+        timestamp:
+          type: string
+          description: When the measurement was taken
+        cell_id:
+          type: string
+          description: Identifier for the cell tower or access point
+        device_id:
+          type: string
+          description: Unique identifier for the reporting device
+        reported:
+          type: boolean
+          description: Flag indicating if the measurement has been reported
+    SignalStrengthReportModel:
+      allOf:
+        - $ref: '#/components/schemas/BaseMeasureDataModel'
+        - type: object
+          required:
+            - dbm
+            - level_code
+          properties:
+            dbm:
+              type: integer
+              description: Signal strength in decibel-milliwatts
+            level_code:
+              type: integer
+              description: Code representing the signal strength level
+    ConnectivityReportModel:
+      allOf:
+        - $ref: '#/components/schemas/BaseMeasureDataModel'
+        - type: object
+          required:
+            - upload_speed
+            - download_speed
+            - ping
+            - package_loss
+          properties:
+            upload_speed:
+              type: number
+              format: double
+              description: Upload speed measurement
+            download_speed:
+              type: number
+              format: double
+              description: Download speed measurement
+            ping:
+              type: number
+              format: double
+              description: Network latency in milliseconds
+            package_loss:
+              type: number
+              format: double
+              description: Packet loss percentage
+    Site:
+      type: object
+      required:
+        - name
+        - latitude
+        - longitude
+        - status
+        - address
+      properties:
+        name:
+          type: string
+          description: Name of the site
+          example: "Filipino Community Center"
+        latitude:
+          type: number
+          format: double
+          description: Geographic latitude coordinate
+          example: 47.681932654395915
+        longitude:
+          type: number
+          format: double
+          description: Geographic longitude coordinate
+          example: -122.31829217664796
+        status:
+          type: string
+          description: Current status of the site
+          enum: [active, confirmed, in-conversation]
+          example: "active"
+        address:
+          type: string
+          description: Physical address of the site
+          example: "5740 Martin Luther King Jr Way S, Seattle, WA 98118"
+        cell_id:
+          type: array
+          description: Optional array of cell identifiers associated with the site
+          items:
+            type: string
+            example: "cell-123"
+    SiteSummary:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          ping:
+            type: number
+            format: double
+            description: Average ping in milliseconds
+            example: 137.41
+          download_speed:
+            type: number
+            format: double
+            description: Average download speed
+            example: 5.23
+          upload_speed:
+            type: number
+            format: double
+            description: Average upload speed
+            example: 7.28
+          dbm:
+            type: number
+            format: double
+            description: Average signal strength in dBm
+            example: -85.3
+      example:
+        "Filipino Community Center":
+          ping: 115.28
+          download_speed: 7.16
+          upload_speed: 8.63
+          dbm: -78.4
+    MarkerData:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+          description: Geographic latitude coordinate
+          example: 47.681932654395915
+        longitude:
+          type: number
+          format: double
+          description: Geographic longitude coordinate
+          example: -122.31829217664796
+        device_id:
+          type: string
+          description: Identifier for the device that collected the data
+          example: "1e683a49d71ffd0"
+        site:
+          type: string
+          description: Name of the site
+          example: "Filipino Community Center"
+        dbm:
+          type: number
+          format: double
+          description: Signal strength in dBm (optional)
+          example: -78.4
+        upload_speed:
+          type: number
+          format: double
+          description: Upload speed measurement
+          example: 7.28
+        download_speed:
+          type: number
+          format: double
+          description: Download speed measurement
+          example: 5.23
+        ping:
+          type: number
+          format: double
+          description: Network latency measurement
+          example: 137.41
+        mid:
+          type: string
+          description: Measurement identifier
+          example: "614157263c28e1a473ede843"
+    LineSummaryItem:
+      type: object
+      properties:
+        site:
+          type: string
+          description: Name of the site
+          example: "Filipino Community Center"
+        values:
+          type: array
+          description: Time series data points for the site
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date-time
+                description: Timestamp for the data point
+                example: "2021-01-25T18:00:00.000Z"
+              value:
+                type: number
+                format: double
+                description: Average value for the metric at this timestamp
+                example: 7.28
+    UserRegistration:
+      type: object
+      properties:
+        publicKey:
+          type: string
+          description: Public key in hexadecimal format, ed25519, pem, pkcs8.
+          example: "aabbccddeeff00112233445566778899"
+        message:
+          type: string
+          format: byte
+          description: Message to be registered in binary format.
+          example: "SGVsbG8gd29ybGQ="
+        sigMessage:
+          type: string
+          description: Signature of message in hex.
+          example: "c3lzdGVtZXN0cmluZw=="
+      required:
+        - publicKey
+        - message
+        - sigMessage
+    DataReport:
+      type: object
+      properties:
+        h_pkr:
+          type: string
+          description: The parameter `h_pkr`
+        sigma_m:
+          type: string
+          description: The parameter `sigma_m`
+        M:
+          type: string
+          description: The parameter `M`
+      required:
+        - h_pkr
+        - sigma_m
+        - M
+    SiteMeasurementData:
+      type: object
+      required:
+        - _id
+        - latitude
+        - longitude
+        - timestamp
+        - upload_speed
+        - download_speed
+        - data_since_last_report
+        - ping
+        - cell_id
+        - device_id
+      properties:
+        _id:
+          type: string
+          description: Unique identifier for the record
+          example: "614157263c28e1a473ede843"
+        latitude:
+          type: number
+          format: double
+          description: Geographic latitude coordinate
+          example: 47.681932654395915
+        longitude:
+          type: number
+          format: double
+          description: Geographic longitude coordinate
+          example: -122.31829217664796
+        timestamp:
+          type: string
+          format: date-time
+          description: Time when the measurement was recorded
+          example: "2021-01-25T18:43:54.370Z"
+        upload_speed:
+          type: number
+          format: double
+          description: Upload speed measurement
+          example: 7.289173724717997
+        download_speed:
+          type: number
+          format: double
+          description: Download speed measurement
+          example: 5.234371563131994
+        data_since_last_report:
+          type: number
+          format: double
+          description: Amount of data transferred since the previous report
+          example: 735.2343217314725
+        ping:
+          type: number
+          format: double
+          description: Network latency measurement
+          example: 137.41470114174285
+        cell_id:
+          type: string
+          description: Identifier for the cell/location where data was collected
+          example: "Filipino Community Center"
+        device_id:
+          type: string
+          description: Identifier for the device that collected the data
+          example: "1e683a49d71ffd0"
+
 paths:
   /register:
-    $ref: './register.yaml'
+    post:
+      summary: Registers a new user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+      responses:
+        '200':
+          description: User already registered
+        '201':
+          description: User registered successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized registration
+        '403':
+          description: Registration keys are invalid
+        '408':
+          description: Registration period expired
+        '503':
+          description: Internal server error
   /report_signal:
-    $ref: './report_signal.yaml'
+    post:
+      summary: Report a signal strength measurement.
+      operationId: reportSignal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataReport'
+      responses:
+        '201':
+          description: Signal reported successfully
+        '401':
+          description: User not found
+        '403':
+          description: Invalid signature
+        '500':
+          description: Internal server error
   /report_measurement:
-    $ref: './report_measurement.yaml'
+    post:
+      summary: Report a speed test measurement.
+      operationId: reportMeasurement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataReport'
+      responses:
+        '201':
+          description: Signal reported successfully
+        '401':
+          description: User not found
+        '403':
+          description: Invalid signature
+        '500':
+          description: Internal server error
   /data:
-    $ref: './data.yaml'
+    get:
+      summary: Retrieve network data
+      description: Fetches network data with optional filtering by cell_id or timestamp range. When filtering by timestamp, both timestamp_from and timestamp_to must be provided together to define a date range. Results are always sorted by timestamp.
+      parameters:
+        - name: cell_id
+          in: query
+          description: Filter results by cell identifier
+          required: false
+          schema:
+            type: string
+            example: "Filipino Community Center"
+        - name: timestamp_from
+          in: query
+          description: Start of timestamp range - must be used together with timestamp_to
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2021-03-25T06:56:36.806Z"
+        - name: timestamp_to
+          in: query
+          description: End of timestamp range - must be used together with timestamp_from
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2021-03-30T03:05:12.867Z"
+      responses:
+        '200':
+          description: A list of network data records, sorted by timestamp
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SiteMeasurementData'
+        '400':
+          description: Invalid input
   /sucess:
-    $ref: './success.yaml'
+    get:
+      summary: Success response
+      description: Returns a success message, typically used as a redirect target after successful authentication
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "success"
   /failure:
-    $ref: './failure.yaml'
+    get:
+      summary: Failure response
+      description: Returns an error message, typically used as a redirect target after failed authentication
+      responses:
+        '500':
+          description: Authorization failure
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Unauthorized, please login"
   /sitesSummary:
-    $ref: './sites_summary.yaml'
+    get:
+      summary: Get summary metrics for all sites
+      description: Returns average ping, download speed, upload speed, and signal strength for each site within the specified time range
+      parameters:
+        - name: timeFrom
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2021-01-01T00:00:00.000Z"
+          description: Start of the time range
+        - name: timeTo
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2021-02-01T00:00:00.000Z"
+          description: End of the time range
+      responses:
+        '200':
+          description: Summary metrics for all sites
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSummary'
+        '400':
+          description: Bad request
   /lineSummary:
-    $ref: './line_summary.yaml'
+    get:
+      summary: Get time series data for selected sites
+      description: Returns time series data for the specified metric and sites within the specified time range
+      parameters:
+        - name: mapType
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "download_speed"
+          description: Type of metric to aggregate (ping, download_speed, upload_speed, or dbm)
+        - name: selectedSites
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "Filipino Community Center,SURGEtacoma"
+          description: Comma-separated list of site names to include
+        - name: timeFrom
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2021-01-01T00:00:00.000Z"
+          description: Start of the time range
+        - name: timeTo
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2021-02-01T00:00:00.000Z"
+          description: End of the time range
+      responses:
+        '200':
+          description: Time series data for selected sites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LineSummaryItem'
+        '400':
+          description: Bad request
   /markers:
-    $ref: './marker.yaml'
+    get:
+      summary: Get marker data for map visualization
+      description: Returns geolocation data with network metrics for selected sites and devices within the specified time range
+      parameters:
+        - name: sites
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "Filipino Community Center,SURGEtacoma"
+          description: Comma-separated list of site names to include
+        - name: devices
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "1e683a49d71ffd0,6a1e5f76cb63ff1"
+          description: Comma-separated list of device IDs to include
+        - name: timeFrom
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2021-01-01T00:00:00.000Z"
+          description: Start of the time range
+        - name: timeTo
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2021-02-01T00:00:00.000Z"
+          description: End of the time range
+      responses:
+        '200':
+          description: Marker data for map visualization
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarkerData'
+        '400':
+          description: Bad request
   /secure/get_groups:
-    $ref: './get_groups.yaml'
+    post:
+      summary: Get distinct group identifiers
+      description: Returns a list of unique group identifiers across signal and measurement data
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved group list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupList'
+        '401':
+          description: Unauthorized - redirects to /api/failure
+        '500':
+          description: Server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "database error"
+                description: Error message
   /secure/delete_group:
-    $ref: './delete_group.yaml'
+    post:
+      summary: Delete a group of measurements
+      description: Removes all measurements associated with the specified group
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteGroupRequest'
+      responses:
+        '200':
+          description: Successfully deleted group
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "successfully deleted"
+                description: Success message
+        '401':
+          description: Unauthorized - redirects to /api/failure
+        '500':
+          description: Server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "database error"
+                description: Error message
   /secure/delete_manual:
-    $ref: './delete_manual.yaml'
+    post:
+      summary: Delete manual measurements
+      description: Removes all manually entered measurements from the database
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Successfully deleted manual measurements
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "successfully deleted"
+                description: Success message
+        '401':
+          description: Unauthorized - redirects to /api/failure
+        '500':
+          description: Server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "database error"
+                description: Error message
   /secure/upload_data:
-    $ref: './upload_data.yaml'
+    post:
+      summary: Upload and process measurement data
+      description: |
+        Parses CSV data and stores it as both signal and measurement records.
+        If a group is specified, any existing data with that group will be removed first.
+        The CSV should include columns for date, time, coordinate, cell_id, dbm, ping, download_speed, and upload_speed.
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadDataRequest'
+      responses:
+        '201':
+          description: Successfully uploaded and processed data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "successful"
+        '400':
+          description: Bad request - missing CSV data or incorrect format
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Bad request"
+        '401':
+          description: Unauthorized - redirects to /api/failure
+        '500':
+          description: Server error during processing
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Incorrect Format or Database Error"
+        '503':
+          description: Service unavailable - database operation failed
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Database operation failed"
   /secure/get-users:
-    $ref: './get_users.yaml'
+    post:
+      summary: Get lists of registered and pending users
+      description: |
+        Returns two lists:
+        1. Registered users sorted by issue date (newest first)
+        2. Pending users whose issue date is within the expiry display limit, sorted by issue date (newest first)
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved user lists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '401':
+          description: Unauthorized - redirects to /api/failure
+        '500':
+          description: Server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Internal server error"
   /secure/toggle-users:
-    $ref: './toggle_users.yaml'
+    post:
+      summary: Toggle a user's enabled status
+      description: Enables or disables a user account by their identity
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToggleUserRequest'
+      responses:
+        '201':
+          description: Successfully toggled user status
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "toggled"
+        '400':
+          description: Bad request - missing or invalid parameters
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "invalid parameters"
+        '401':
+          description: Unauthorized - redirects to /api/failure
+        '503':
+          description: Service unavailable - database operation failed
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "database error"
   /secure/login:
-    $ref: './login.yaml'
+    post:
+      summary: LDAP authentication
+      description: |
+        Authenticates a user against an LDAP directory server.
+        Uses Passport LDAP strategy which binds to the LDAP server with the provided credentials.
+        On success, creates a session and redirects to /api/success.
+        On failure, redirects to /api/failure.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LdapCredentials'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LdapCredentials'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "success"
+        '302':
+          description: Redirect to success or failure page
+          headers:
+            Location:
+              schema:
+                type: string
+                example: "/api/success"
+        '401':
+          description: Authentication failed
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Authentication failed"
   /secure/logout:
-    $ref: './logout.yaml'
+    get:
+      summary: Log out user
+      description: Ends the user's authenticated session
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Successfully logged out
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "logged out"
   /secure/edit_sites:
-    $ref: './edit_sites.yaml'
+    post:
+      summary: Update site configuration
+      description: |
+        Updates the sites configuration file with provided data.
+        Requires user to be authenticated - will redirect to login page if not authenticated.
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - sites
+              properties:
+                sites:
+                  type: string
+                  description: JSON string containing site configuration data
+                  example: '{"site1":{"name":"Site 1","location":"Building A"},"site2":{"name":"Site 2","location":"Building B"}}'
+      responses:
+        '201':
+          description: Site configuration successfully updated
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "updated"
+        '400':
+          description: Bad request - invalid JSON format or missing required fields
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "bad request"
+        '401':
+          description: Unauthorized - User not logged in
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Unauthorized, please login"
+        '500':
+          description: Server error while updating configuration file
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "database error"
   /secure/new_user:
-    $ref: './new_user.yaml'
+    post:
+      summary: Create a new user with cryptographic identity
+      description: |
+        Creates a new user with a cryptographically secure identity using EC keys.
+        Generates keypairs, creates signatures, and stores user information.
+        Requires authentication - will redirect to login page if not authenticated.
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: ''
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUserRequest'
+      responses:
+        '201':
+          description: User successfully created with cryptographic identity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewUserRequest'
+        '401':
+          description: Unauthorized - User not logged in
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Unauthorized, please login"
+        '500':
+          description: Cryptographic operation error
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Error message from cryptographic operation
+        '503':
+          description: Database operation error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "database error"
