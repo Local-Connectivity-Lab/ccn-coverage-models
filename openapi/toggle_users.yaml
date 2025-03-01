@@ -1,0 +1,35 @@
+post:
+  summary: Toggle a user's enabled status
+  description: Enables or disables a user account by their identity
+  security:
+    - sessionAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: './components.yaml#/components/schemas/ToggleUserRequest'
+  responses:
+    '201':
+      description: Successfully toggled user status
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "toggled"
+    '400':
+      description: Bad request - missing or invalid parameters
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "invalid parameters"
+    '401':
+      description: Unauthorized - redirects to /api/failure
+    '503':
+      description: Service unavailable - database operation failed
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "database error"

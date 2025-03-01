@@ -1,0 +1,53 @@
+openapi: 3.1.0
+info:
+  title: Signal Strength Schemas
+  description: Common data structure definitions for measurement and signal strength reporting.
+  version: 1.0.0
+
+components:
+  schemas:
+    MarkerData:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+          description: Geographic latitude coordinate
+          example: 47.681932654395915
+        longitude:
+          type: number
+          format: double
+          description: Geographic longitude coordinate
+          example: -122.31829217664796
+        device_id:
+          type: string
+          description: Identifier for the device that collected the data
+          example: "1e683a49d71ffd0"
+        site:
+          type: string
+          description: Name of the site
+          example: "Filipino Community Center"
+        dbm:
+          type: number
+          format: double
+          description: Signal strength in dBm (optional)
+          example: -78.4
+        upload_speed:
+          type: number
+          format: double
+          description: Upload speed measurement
+          example: 7.28
+        download_speed:
+          type: number
+          format: double
+          description: Download speed measurement
+          example: 5.23
+        ping:
+          type: number
+          format: double
+          description: Network latency measurement
+          example: 137.41
+        mid:
+          type: string
+          description: Measurement identifier
+          example: "614157263c28e1a473ede843"

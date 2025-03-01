@@ -1,0 +1,45 @@
+get:
+  summary: Get marker data for map visualization
+  description: Returns geolocation data with network metrics for selected sites and devices within the specified time range
+  parameters:
+    - name: sites
+      in: query
+      required: true
+      schema:
+        type: string
+        example: "Filipino Community Center,SURGEtacoma"
+      description: Comma-separated list of site names to include
+    - name: devices
+      in: query
+      required: false
+      schema:
+        type: string
+        example: "1e683a49d71ffd0,6a1e5f76cb63ff1"
+      description: Comma-separated list of device IDs to include
+    - name: timeFrom
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date-time
+        example: "2021-01-01T00:00:00.000Z"
+      description: Start of the time range
+    - name: timeTo
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date-time
+        example: "2021-02-01T00:00:00.000Z"
+      description: End of the time range
+  responses:
+    '200':
+      description: Marker data for map visualization
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: './mark_data.yaml'
+    '400':
+      description: Bad request

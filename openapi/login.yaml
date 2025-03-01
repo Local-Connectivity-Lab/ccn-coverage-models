@@ -1,0 +1,39 @@
+
+post:
+  summary: LDAP authentication
+  description: |
+    Authenticates a user against an LDAP directory server.
+    Uses Passport LDAP strategy which binds to the LDAP server with the provided credentials.
+    On success, creates a session and redirects to /api/success.
+    On failure, redirects to /api/failure.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: './components.yaml#/components/schemas/LdapCredentials'
+      application/x-www-form-urlencoded:
+        schema:
+          $ref: './components.yaml#/components/schemas/LdapCredentials'
+  responses:
+    '200':
+      description: Successful authentication
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "success"
+    '302':
+      description: Redirect to success or failure page
+      headers:
+        Location:
+          schema:
+            type: string
+            example: "/api/success"
+    '401':
+      description: Authentication failed
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "Authentication failed"

@@ -1,0 +1,152 @@
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+      description: Session cookie for authenticated users
+  
+  schemas:
+    NewUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+          description: User's email address
+        firstName:
+          type: string
+          example: "John"
+          description: User's first name
+        lastName:
+          type: string
+          example: "Doe"
+          description: User's last name
+    LdapCredentials:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: LDAP username (could be DN, uid, or email depending on LDAP configuration)
+          example: "uid=jsmith,ou=users,dc=example,dc=com"
+        password:
+          type: string
+          format: password
+          description: LDAP password
+          example: "password123"
+    CryptoIdentityResponse:
+      type: object
+      properties:
+        sigma_t:
+          type: string
+          description: Cryptographic signature in hexadecimal format
+          example: "30450221009d41a9afd..."
+        sk_t:
+          type: string
+          description: Private key in DER format converted to hexadecimal
+          example: "308184020100301006..."
+        pk_a:
+          type: string
+          description: Public key in DER format converted to hexadecimal
+          example: "3056301006072a8648..."
+    UploadDataRequest:
+      type: object
+      required:
+        - csv
+      properties:
+        csv:
+          type: string
+          description: CSV data to be parsed and stored
+          example: "date,time,coordinate,cell_id,dbm,ping,download_speed,upload_speed\n2021-01-25,18:43:54,47.681932,-122.318292,cell-1,-85.3,-87.1,137.4,5.2,7.3"
+        group:
+          type: string
+          description: Optional group identifier to associate with uploaded data
+          example: "fieldtrip-2021"
+    DeleteGroupRequest:
+      type: object
+      required:
+        - group
+      properties:
+        group:
+          type: string
+          description: Group identifier to delete
+          example: "fieldtrip-2021"
+    GroupList:
+      type: array
+      description: List of unique group identifiers across signal and measurement data
+      items:
+        type: string
+        example: "fieldtrip-2021"
+    User:
+      type: object
+      properties:
+        identity:
+          type: string
+          description: Unique identifier for the user
+          example: "9a8b7c6d5e4f3g2h1i"
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "user@example.com"
+        firstName:
+          type: string
+          description: User's first name
+          example: "John"
+        lastName:
+          type: string
+          description: User's last name
+          example: "Doe"
+        registered:
+          type: boolean
+          description: Whether the user has completed registration
+          example: true
+        issueDate:
+          type: string
+          format: date-time
+          description: Date when the user was issued or account was created
+          example: "2023-03-15T14:30:45.123Z"
+        isEnabled:
+          type: boolean
+          description: Whether the user account is currently enabled
+          example: true
+        publicKey:
+          type: string
+          description: User's public key
+          example: "308201a2300d06092a864886f70d01010105000382018f003082018a02820181..."
+        qrCode:
+          type: string
+          description: QR code data for user registration
+          example: "{\"sigma_t\":\"...\",\"sk_t\":\"...\",\"pk_a\":\"...\"}"
+    
+    UserListResponse:
+      type: object
+      properties:
+        pending:
+          type: array
+          description: List of pending users (not yet registered) whose issue date is within the expiry limit
+          items:
+            $ref: '#/components/schemas/User'
+        registered:
+          type: array
+          description: List of registered users
+          items:
+            $ref: '#/components/schemas/User'
+    ToggleUserRequest:
+      type: object
+      required:
+        - identity
+        - enabled
+      properties:
+        identity:
+          type: string
+          description: Unique identifier of the user to update
+          example: "9a8b7c6d5e4f3g2h1i"
+        enabled:
+          type: boolean
+          description: New enabled status for the user
+          example: true

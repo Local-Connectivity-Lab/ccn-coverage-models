@@ -1,0 +1,11 @@
+get:
+  summary: Success response
+  description: Returns a success message, typically used as a redirect target after successful authentication
+  responses:
+    '200':
+      description: Success
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "success"

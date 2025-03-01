@@ -1,0 +1,22 @@
+post:
+  summary: Get distinct group identifiers
+  description: Returns a list of unique group identifiers across signal and measurement data
+  security:
+    - sessionAuth: []
+  responses:
+    '200':
+      description: Successfully retrieved group list
+      content:
+        application/json:
+          schema:
+            $ref: './components.yaml#/components/schemas/GroupList'
+    '401':
+      description: Unauthorized - redirects to /api/failure
+    '500':
+      description: Server error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "database error"
+            description: Error message

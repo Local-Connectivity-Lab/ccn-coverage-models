@@ -1,0 +1,45 @@
+post:
+  summary: Create a new user with cryptographic identity
+  description: |
+    Creates a new user with a cryptographically secure identity using EC keys.
+    Generates keypairs, creates signatures, and stores user information.
+    Requires authentication - will redirect to login page if not authenticated.
+  security:
+    - sessionAuth: []
+  requestBody:
+    required: true
+    content:
+      application/x-www-form-urlencoded:
+        schema:
+          $ref: ''
+      application/json:
+        schema:
+          $ref: './components.yaml#/components/schemas/NewUserRequest'
+  responses:
+    '201':
+      description: User successfully created with cryptographic identity
+      content:
+        application/json:
+          schema:
+            $ref: './components.yaml#/components/schemas/NewUserRequest'
+    '401':
+      description: Unauthorized - User not logged in
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "Unauthorized, please login"
+    '500':
+      description: Cryptographic operation error
+      content:
+        text/plain:
+          schema:
+            type: string
+            description: Error message from cryptographic operation
+    '503':
+      description: Database operation error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "database error"

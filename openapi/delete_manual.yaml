@@ -1,0 +1,24 @@
+post:
+  summary: Delete manual measurements
+  description: Removes all manually entered measurements from the database
+  security:
+    - sessionAuth: []
+  responses:
+    '200':
+      description: Successfully deleted manual measurements
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "successfully deleted"
+            description: Success message
+    '401':
+      description: Unauthorized - redirects to /api/failure
+    '500':
+      description: Server error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "database error"
+            description: Error message

@@ -1,0 +1,43 @@
+post:
+  summary: Registers a new user
+  operationId: registerUser
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            publicKey:
+              type: string
+              description: Public key in hexadecimal format, ed25519, pem, pkcs8.
+              example: "aabbccddeeff00112233445566778899"
+            message:
+              type: string
+              format: byte
+              description: Message to be registered in binary format.
+              example: "SGVsbG8gd29ybGQ="
+            sigMessage:
+              type: string
+              description: Signature of message in hex.
+              example: "c3lzdGVtZXN0cmluZw=="
+          required:
+            - publicKey
+            - message
+            - sigMessage
+
+  responses:
+    '200':
+      description: User already registered
+    '201':
+      description: User registered successfully
+    '400':
+      description: Invalid input
+    '401':
+      description: Unauthorized registration
+    '403':
+      description: Registration keys are invalid
+    '408':
+      description: Registration period expired
+    '503':
+      description: Internal server error

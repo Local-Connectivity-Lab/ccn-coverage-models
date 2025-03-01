@@ -1,0 +1,39 @@
+openapi: 3.1.0
+info:
+  title: Site Summary
+  version: 1.0.0
+  description: Site summary
+
+components:
+  schemas:
+    SiteSummary:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          ping:
+            type: number
+            format: double
+            description: Average ping in milliseconds
+            example: 137.41
+          download_speed:
+            type: number
+            format: double
+            description: Average download speed
+            example: 5.23
+          upload_speed:
+            type: number
+            format: double
+            description: Average upload speed
+            example: 7.28
+          dbm:
+            type: number
+            format: double
+            description: Average signal strength in dBm
+            example: -85.3
+      example:
+        "Filipino Community Center":
+          ping: 115.28
+          download_speed: 7.16
+          upload_speed: 8.63
+          dbm: -78.4

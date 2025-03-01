@@ -1,0 +1,48 @@
+openapi: 3.1.0
+info:
+  title: CCN Coverage API
+  description: CCN Coverage API documentation.
+  version: 1.0.0
+
+servers:
+  - url: https://coverage.seattlecommunitynetwork.org/api
+
+paths:
+  /register:
+    $ref: './register.yaml'
+  /report_signal:
+    $ref: './report_signal.yaml'
+  /report_measurement:
+    $ref: './report_measurement.yaml'
+  /data:
+    $ref: './data.yaml'
+  /sucess:
+    $ref: './success.yaml'
+  /failure:
+    $ref: './failure.yaml'
+  /sitesSummary:
+    $ref: './sites_summary.yaml'
+  /lineSummary:
+    $ref: './line_summary.yaml'
+  /markers:
+    $ref: './marker.yaml'
+  /secure/get_groups:
+    $ref: './get_groups.yaml'
+  /secure/delete_group:
+    $ref: './delete_group.yaml'
+  /secure/delete_manual:
+    $ref: './delete_manual.yaml'
+  /secure/upload_data:
+    $ref: './upload_data.yaml'
+  /secure/get-users:
+    $ref: './get_users.yaml'
+  /secure/toggle-users:
+    $ref: './toggle_users.yaml'
+  /secure/login:
+    $ref: './login.yaml'
+  /secure/logout:
+    $ref: './logout.yaml'
+  /secure/edit_sites:
+    $ref: './edit_sites.yaml'
+  /secure/new_user:
+    $ref: './new_user.yaml'

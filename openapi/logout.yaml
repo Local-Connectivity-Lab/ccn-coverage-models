@@ -1,0 +1,14 @@
+/api/logout:
+  get:
+    summary: Log out user
+    description: Ends the user's authenticated session
+    security:
+      - sessionAuth: []
+    responses:
+      '200':
+        description: Successfully logged out
+        content:
+          text/plain:
+            schema:
+              type: string
+              example: "logged out"

@@ -1,0 +1,97 @@
+get:
+  summary: Retrieve network data
+  description: Fetches network data with optional filtering by cell_id or timestamp range. When filtering by timestamp, both timestamp_from and timestamp_to must be provided together to define a date range. Results are always sorted by timestamp.
+  parameters:
+    - name: cell_id
+      in: query
+      description: Filter results by cell identifier
+      required: false
+      schema:
+        type: string
+        example: "Filipino Community Center"
+    - name: timestamp_from
+      in: query
+      description: Start of timestamp range - must be used together with timestamp_to
+      required: false
+      schema:
+        type: string
+        format: date-time
+        example: "2021-03-25T06:56:36.806Z"
+    - name: timestamp_to
+      in: query
+      description: End of timestamp range - must be used together with timestamp_from
+      required: false
+      schema:
+        type: string
+        format: date-time
+        example: "2021-03-30T03:05:12.867Z"
+  responses:
+    '200':
+      description: A list of network data records, sorted by timestamp
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              required:
+                - _id
+                - latitude
+                - longitude
+                - timestamp
+                - upload_speed
+                - download_speed
+                - data_since_last_report
+                - ping
+                - cell_id
+                - device_id
+              properties:
+                _id:
+                  type: string
+                  description: Unique identifier for the record
+                  example: "614157263c28e1a473ede843"
+                latitude:
+                  type: number
+                  format: double
+                  description: Geographic latitude coordinate
+                  example: 47.681932654395915
+                longitude:
+                  type: number
+                  format: double
+                  description: Geographic longitude coordinate
+                  example: -122.31829217664796
+                timestamp:
+                  type: string
+                  format: date-time
+                  description: Time when the measurement was recorded
+                  example: "2021-01-25T18:43:54.370Z"
+                upload_speed:
+                  type: number
+                  format: double
+                  description: Upload speed measurement
+                  example: 7.289173724717997
+                download_speed:
+                  type: number
+                  format: double
+                  description: Download speed measurement
+                  example: 5.234371563131994
+                data_since_last_report:
+                  type: number
+                  format: double
+                  description: Amount of data transferred since the previous report
+                  example: 735.2343217314725
+                ping:
+                  type: number
+                  format: double
+                  description: Network latency measurement
+                  example: 137.41470114174285
+                cell_id:
+                  type: string
+                  description: Identifier for the cell/location where data was collected
+                  example: "Filipino Community Center"
+                device_id:
+                  type: string
+                  description: Identifier for the device that collected the data
+                  example: "1e683a49d71ffd0"
+    '400':
+      description: Invalid input
