@@ -1,5 +1,5 @@
 SHELL = /bin/bash
-DEV_IMG := openapitools/openapi-generator-cli:latest
+DEV_IMG := node:22-slim
 
 .PHONY: help
 help: ## this help
@@ -8,14 +8,15 @@ help: ## this help
 .PHONY: clean
 clean: ## Clean
 	@echo "Clean"
-	rm -rf openapi/out
+	rm -rf output/*
 
-.PHONY: build
-build-%: ## Build build-<generator> [typescript-node, kotlin, swift6, etc]
+.PHONY: build-typescript
+build-typescript: ## Build for TypeScript
 	@echo "Build"
 	docker run -it --rm \
-		-v $(PWD)/openapi:/local \
-		$(DEV_IMG) generate \
-		-i /local/v1/ccn-coverage-api.yaml \
-		-g "$*" \
-		-o "/local/out/$*"
+		-v $(PWD)/package.json:/root/package.json \
+		-v $(PWD)/openapi:/root/openapi \
+		-v $(PWD)/output:/root/output \
+		-w /root \
+		$(DEV_IMG) \
+		bash -c "npm install && npm run generate"
