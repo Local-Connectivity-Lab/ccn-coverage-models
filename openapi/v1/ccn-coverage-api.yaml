@@ -159,7 +159,7 @@ components:
         - timestamp
         - cell_id
         - device_id
-        - reported
+        - show_data
       properties:
         latitude:
           type: number
@@ -178,9 +178,9 @@ components:
         device_id:
           type: string
           description: Unique identifier for the reporting device
-        reported:
+        show_data:
           type: boolean
-          description: Flag indicating if the measurement has been reported
+          description: Flag indicating if the measurement has been reported and will be shown on the map.
     SignalStrengthReportModel:
       allOf:
         - $ref: '#/components/schemas/BaseMeasureDataModel'
