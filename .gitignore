@@ -1,2 +1,4 @@
 openapi/out/*
 .vscode/*
+output/*
+node_modules/*
