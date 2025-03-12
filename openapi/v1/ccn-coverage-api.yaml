@@ -85,6 +85,17 @@ components:
         example: "fieldtrip-2021"
     User:
       type: object
+      required:
+        - identity
+        - email
+        - firstName
+        - lastName
+        - registered
+        - issueDate
+        - isEnabled
+        - publicKey
+        - qrCode
+        - lastOnline
       properties:
         identity:
           type: string
@@ -124,6 +135,11 @@ components:
           type: string
           description: QR code data for user registration
           example: "{\"sigma_t\":\"...\",\"sk_t\":\"...\",\"pk_a\":\"...\"}"
+        lastOnline:
+          type: string
+          format: date-time
+          description: Last time the user was online in ISO 8601 date-time (YYYY-MM-DDTHH:mm:ss.sssZ)
+          example: "2023-03-15T14:30:45.123Z"
     UserListResponse:
       type: object
       properties:
