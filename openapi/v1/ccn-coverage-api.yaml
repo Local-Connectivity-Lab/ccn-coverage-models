@@ -275,7 +275,7 @@ components:
           items:
             type: string
             example: "cell-123"
-    SiteSummary:
+    SitesSummary:
       type: object
       additionalProperties:
         type: object
@@ -300,6 +300,11 @@ components:
             format: double
             description: Average signal strength in dBm
             example: -85.3
+        required:
+          - ping
+          - download_speed
+          - upload_speed
+          - dbm
       example:
         "Filipino Community Center":
           ping: 115.28
@@ -471,9 +476,45 @@ components:
           type: string
           description: Identifier for the device that collected the data
           example: "1e683a49d71ffd0"
+    DataRangeResponse:
+      type: object
+      required:
+        - center
+        - minLat
+        - minLon
+        - maxLat
+        - maxLon
+      properties:
+        center:
+          type: array
+          description: Center coordinates [latitude, longitude] of the data range
+          items:
+            type: number
+            format: double
+          example: [47.6062, -122.3321]
+        minLat:
+          type: number
+          format: double
+          description: Minimum latitude value in the data range
+          example: 47.5001
+        minLon:
+          type: number
+          format: double
+          description: Minimum longitude value in the data range
+          example: -122.4382
+        maxLat:
+          type: number
+          format: double
+          description: Maximum latitude value in the data range
+          example: 47.7340
+        maxLon:
+          type: number
+          format: double
+          description: Maximum longitude value in the data range
+          example: -122.2364
 
 paths:
-  /register:
+  /api/register:
     post:
       summary: Registers a new user
       operationId: registerUser
@@ -498,7 +539,7 @@ paths:
           description: Registration period expired
         '503':
           description: Internal server error
-  /report_signal:
+  /api/report_signal:
     post:
       summary: Report a signal strength measurement.
       operationId: reportSignal
@@ -517,7 +558,7 @@ paths:
           description: Invalid signature
         '500':
           description: Internal server error
-  /report_measurement:
+  /api/report_measurement:
     post:
       summary: Report a speed test measurement.
       operationId: reportMeasurement
@@ -536,10 +577,10 @@ paths:
           description: Invalid signature
         '500':
           description: Internal server error
-  /data:
+  /api/data:
     get:
       summary: Retrieve network data
-      description: Fetches network data with optional filtering by cell_id or timestamp range. When filtering by timestamp, both timestamp_from and timestamp_to must be provided together to define a date range. Results are always sorted by timestamp.
+      description: Fetches network data with optional filtering by cell_id or timestamp range, and visual display parameters. When filtering by timestamp, both timestamp_from and timestamp_to must be provided together to define a date range. Results are always sorted by timestamp.
       parameters:
         - name: cell_id
           in: query
@@ -564,6 +605,76 @@ paths:
             type: string
             format: date-time
             example: "2021-03-30T03:05:12.867Z"
+        - name: width
+          in: query
+          description: Width of the display area in pixels
+          required: false
+          schema:
+            type: integer
+            example: 800
+        - name: height
+          in: query
+          description: Height of the display area in pixels
+          required: false
+          schema:
+            type: integer
+            example: 600
+        - name: top
+          in: query
+          description: Top coordinate of the viewport
+          required: false
+          schema:
+            type: integer
+            example: 0
+        - name: left
+          in: query
+          description: Left coordinate of the viewport
+          required: false
+          schema:
+            type: integer
+            example: 0
+        - name: binSizeShift
+          in: query
+          description: Controls the size of data bins for aggregation
+          required: false
+          schema:
+            type: integer
+            example: 4
+        - name: zoom
+          in: query
+          description: Zoom level for the map view
+          required: false
+          schema:
+            type: integer
+            example: 10
+        - name: selectedSites
+          in: query
+          description: Comma-separated list of selected site identifiers
+          required: false
+          schema:
+            type: string
+            example: "site1,site2,site3"
+        - name: mapType
+          in: query
+          description: Type of map visualization to display
+          required: false
+          schema:
+            type: string
+            example: "heatmap"
+        - name: timeFrom
+          in: query
+          description: Alternative format for timestamp_from
+          required: false
+          schema:
+            type: string
+            example: "2021-03-25"
+        - name: timeTo
+          in: query
+          description: Alternative format for timestamp_to
+          required: false
+          schema:
+            type: string
+            example: "2021-03-30"
       responses:
         '200':
           description: A list of network data records, sorted by timestamp
@@ -575,7 +686,7 @@ paths:
                   $ref: '#/components/schemas/SiteMeasurementData'
         '400':
           description: Invalid input
-  /sucess:
+  /api/sucess:
     get:
       summary: Success response
       description: Returns a success message, typically used as a redirect target after successful authentication
@@ -587,7 +698,7 @@ paths:
               schema:
                 type: string
                 example: "success"
-  /failure:
+  /api/failure:
     get:
       summary: Failure response
       description: Returns an error message, typically used as a redirect target after failed authentication
@@ -599,7 +710,7 @@ paths:
               schema:
                 type: string
                 example: "Unauthorized, please login"
-  /sitesSummary:
+  /api/sitesSummary:
     get:
       summary: Get summary metrics for all sites
       description: Returns average ping, download speed, upload speed, and signal strength for each site within the specified time range
@@ -626,10 +737,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SiteSummary'
+                $ref: '#/components/schemas/SitesSummary'
         '400':
           description: Bad request
-  /lineSummary:
+  /api/lineSummary:
     get:
       summary: Get time series data for selected sites
       description: Returns time series data for the specified metric and sites within the specified time range
@@ -675,7 +786,7 @@ paths:
                   $ref: '#/components/schemas/LineSummaryItem'
         '400':
           description: Bad request
-  /markers:
+  /api/markers:
     get:
       summary: Get marker data for map visualization
       description: Returns geolocation data with network metrics for selected sites and devices within the specified time range
@@ -721,6 +832,24 @@ paths:
                   $ref: '#/components/schemas/MarkerData'
         '400':
           description: Bad request
+  /api/dataRange:
+    get:
+      summary: Get geographic boundaries of available data
+      description: Returns the center coordinates and bounding box (minimum and maximum latitude/longitude) of all available measurement data.
+      responses:
+        '200':
+          description: Geographic boundaries of available data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataRangeResponse'
+        '500':
+          description: Server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "database error"
   /secure/get_groups:
     post:
       summary: Get distinct group identifiers
