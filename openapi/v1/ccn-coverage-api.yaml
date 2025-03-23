@@ -512,7 +512,22 @@ components:
           format: double
           description: Maximum longitude value in the data range
           example: -122.2364
-
+    QueryData:
+      type: object
+      description: Represents a single data point in a query result
+      properties:
+        bin:
+          type: integer
+          description: The bin/bucket identifier for data categorization
+          example: 3
+        average:
+          type: number
+          format: float
+          description: The calculated average value for data in this bin
+          example: 45.7
+      required:
+        - bin
+        - average
 paths:
   /api/register:
     post:
