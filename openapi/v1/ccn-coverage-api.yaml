@@ -521,10 +521,9 @@ components:
           description: The bin/bucket identifier for data categorization
           example: 3
         average:
-          type: number
-          format: float
-          description: The calculated average value for data in this bin
-          example: 45.7
+          type: string
+          description: The string representation of calculated average value for data in this bin with 2 decimal places.
+          example: "45.70"
       required:
         - bin
         - average
