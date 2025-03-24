@@ -379,6 +379,12 @@ components:
                 format: double
                 description: Average value for the metric at this timestamp
                 example: 7.28
+            required:
+              - date
+              - value
+      required:
+        - site
+        - values
     UserRegistration:
       type: object
       properties:
@@ -697,7 +703,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SiteMeasurementData'
+                  $ref: '#/components/schemas/QueryData'
         '400':
           description: Invalid input
   /api/sucess:
