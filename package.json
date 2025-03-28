@@ -3,6 +3,6 @@
         "openapi-typescript": "^7.6.1"
     },
     "scripts": {
-        "generate": "openapi-typescript ./openapi/v1/ccn-coverage-api.yaml --enum true -o ./output/ts/schema.d.ts"
+        "generate": "openapi-typescript ./openapi/v1/ccn-coverage-api.yaml --array-length true --enum true -o ./output/ts/schema.d.ts"
     }
 }

@@ -245,6 +245,7 @@ components:
         - longitude
         - status
         - address
+        - cell_id
       properties:
         name:
           type: string
@@ -271,10 +272,24 @@ components:
           example: "5740 Martin Luther King Jr Way S, Seattle, WA 98118"
         cell_id:
           type: array
-          description: Optional array of cell identifiers associated with the site
+          description: Array of cell identifiers associated with the site
           items:
             type: string
             example: "cell-123"
+        color:
+          type: string
+          description: Optional color identifier for the site in hex code 
+          example: "#FF5733"
+        boundary:
+          type: array
+          description: Optional geographical boundary coordinates defining the site perimeter as [latitude, longitude] pairs
+          items:
+            type: array
+            minItems: 2
+            maxItems: 2
+            items:
+              type: number
+              format: double
     SitesSummary:
       type: object
       additionalProperties:
@@ -356,6 +371,15 @@ components:
           type: string
           description: Measurement identifier
           example: "614157263c28e1a473ede843"
+      required:
+        - latitude
+        - longitude
+        - device_id
+        - site
+        - upload_speed
+        - download_speed
+        - ping
+        - mid
     LineSummaryItem:
       type: object
       properties:
@@ -870,6 +894,20 @@ paths:
               schema:
                 type: string
                 example: "database error"
+  /api/sites:
+    get:
+      summary: Get all sites
+      description: Returns a list of all available sites with their location and status information
+      operationId: getSites
+      responses:
+        '200':
+          description: List of sites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Site'
   /secure/get_groups:
     post:
       summary: Get distinct group identifiers
