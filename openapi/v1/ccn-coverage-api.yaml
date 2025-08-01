@@ -911,6 +911,30 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Site'
+  /api/public-sites:
+    get:
+      summary: Get sites list
+      description: Returns a list of public sites
+      responses:
+        '200':
+          description: List of public sites
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sites:
+                    type: array
+                    description: List of sites
+                    items:
+                      $ref: '#/components/schemas/Site'
+        '500':
+          description: Server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Internal server error"
   /secure/get_groups:
     post:
       summary: Get distinct group identifiers
@@ -1253,6 +1277,127 @@ paths:
                 description: Error message from cryptographic operation
         '503':
           description: Database operation error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "database error"
+  /api/secure-site:
+    put:
+      summary: Update an existing site
+      description: Updates an existing site with the provided information
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Site'
+      responses:
+        '200':
+          description: Site successfully updated
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "updated"
+        '400':
+          description: Bad request - invalid site data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "bad request"
+        '401':
+          description: Unauthorized - User not logged in
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Unauthorized, please login"
+        '500':
+          description: Server error while updating site
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "database error"
+    post:
+      summary: Add a new site
+      description: Creates a new site with the provided information
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Site'
+      responses:
+        '201':
+          description: Site successfully created
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "created"
+        '400':
+          description: Bad request - invalid site data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "bad request"
+        '401':
+          description: Unauthorized - User not logged in
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Unauthorized, please login"
+        '500':
+          description: Server error while creating site
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "database error"
+    delete:
+      summary: Delete a site
+      description: Removes an existing site from the system
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Site'
+      responses:
+        '200':
+          description: Site successfully deleted
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "deleted"
+        '400':
+          description: Bad request - invalid site data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "bad request"
+        '401':
+          description: Unauthorized - User not logged in
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Unauthorized, please login"
+        '500':
+          description: Server error while deleting site
           content:
             text/plain:
               schema:
