@@ -897,6 +897,20 @@ paths:
               schema:
                 type: string
                 example: "database error"
+  /api/old-sites:
+    get:
+      summary: Get all sites
+      description: Returns a list of all available sites with their location and status information
+      operationId: getSitesOld
+      responses:
+        '200':
+          description: List of sites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Site'
   /api/sites:
     get:
       summary: Get all sites
@@ -911,30 +925,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Site'
-  /api/public-sites:
-    get:
-      summary: Get sites list
-      description: Returns a list of public sites
-      responses:
-        '200':
-          description: List of public sites
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  sites:
-                    type: array
-                    description: List of sites
-                    items:
-                      $ref: '#/components/schemas/Site'
-        '500':
-          description: Server error
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "Internal server error"
   /secure/get_groups:
     post:
       summary: Get distinct group identifiers
