@@ -1258,7 +1258,7 @@ paths:
               schema:
                 type: string
                 example: "database error"
-  /api/secure-site:
+  /secure/edit-sites:
     put:
       summary: Update an existing site
       description: Updates an existing site with the provided information
