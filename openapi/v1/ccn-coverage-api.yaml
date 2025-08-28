@@ -897,20 +897,6 @@ paths:
               schema:
                 type: string
                 example: "database error"
-  /api/old-sites:
-    get:
-      summary: Get all sites
-      description: Returns a list of all available sites with their location and status information
-      operationId: getSitesOld
-      responses:
-        '200':
-          description: List of sites
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Site'
   /api/sites:
     get:
       summary: Get all sites
