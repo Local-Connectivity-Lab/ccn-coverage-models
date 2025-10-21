@@ -243,6 +243,7 @@ components:
     Site:
       type: object
       required:
+        - identity
         - name
         - latitude
         - longitude
@@ -250,6 +251,10 @@ components:
         - address
         - cell_id
       properties:
+        identity:
+            type: string
+            description: Unique identifier of the user to update
+            example: "9a8b7c6d5e4f3g2h1i"
         name:
           type: string
           description: Name of the site
