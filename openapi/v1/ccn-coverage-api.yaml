@@ -278,7 +278,7 @@ components:
           type: string
           description: Physical address of the site
           example: "5740 Martin Luther King Jr Way S, Seattle, WA 98118"
-        cell_id:
+        cell_ids:
           type: array
           description: Array of cell identifiers associated with the site
           items:
@@ -331,7 +331,7 @@ components:
           type: string
           description: Physical address of the site
           example: "5740 Martin Luther King Jr Way S, Seattle, WA 98118"
-        cell_id:
+        cell_ids:
           type: array
           description: Array of cell identifiers associated with the site
           items:
