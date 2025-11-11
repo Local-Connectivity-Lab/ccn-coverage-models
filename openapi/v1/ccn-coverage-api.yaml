@@ -253,8 +253,8 @@ components:
       properties:
         identity:
             type: string
-            description: Unique identifier of the user to update
-            example: "9a8b7c6d5e4f3g2h1i"
+            description: Unique identifier of the site
+            example: "123e4567-e89b-12d3-a456-426614174000"
         name:
           type: string
           description: Name of the site
@@ -288,7 +288,7 @@ components:
           type: string
           description: Optional color identifier for the site in hex code 
           example: "#FF5733"
-        boundary_array:
+        boundaries:
           type: array
           description: Optional geographical boundary coordinates defining the site perimeter as [latitude, longitude] pairs
           items:
@@ -1414,7 +1414,7 @@ paths:
                 identity:
                   type: string
                   description: The unique identifier of the site to delete
-                  example: "9a8b7c6d5e4f3g2h1i"
+                  example: "123e4567-e89b-12d3-a456-426614174000"
       responses:
         '200':
           description: Site successfully deleted
