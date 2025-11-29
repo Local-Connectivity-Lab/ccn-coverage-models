@@ -341,7 +341,7 @@ components:
           type: string
           description: Optional color identifier for the site in hex code 
           example: "#FF5733"
-        boundary_array:
+        boundaries:
           type: array
           description: Optional geographical boundary coordinates defining the site perimeter as [latitude, longitude] pairs
           items:
