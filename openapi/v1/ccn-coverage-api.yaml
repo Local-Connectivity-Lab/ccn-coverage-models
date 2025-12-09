@@ -243,6 +243,64 @@ components:
     Site:
       type: object
       required:
+        - identity
+        - name
+        - latitude
+        - longitude
+        - status
+        - address
+        - cell_id
+      properties:
+        identity:
+            type: string
+            description: Unique identifier of the site
+            example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          description: Name of the site
+          example: "Filipino Community Center"
+        latitude:
+          type: number
+          format: double
+          description: Geographic latitude coordinate
+          example: 47.681932654395915
+        longitude:
+          type: number
+          format: double
+          description: Geographic longitude coordinate
+          example: -122.31829217664796
+        status:
+          type: string
+          description: Current status of the site
+          enum: [active, confirmed, in-conversation]
+          example: "active"
+        address:
+          type: string
+          description: Physical address of the site
+          example: "5740 Martin Luther King Jr Way S, Seattle, WA 98118"
+        cell_ids:
+          type: array
+          description: Array of cell identifiers associated with the site
+          items:
+            type: string
+            example: "cell-123"
+        color:
+          type: string
+          description: Optional color identifier for the site in hex code 
+          example: "#FF5733"
+        boundaries:
+          type: array
+          description: Optional geographical boundary coordinates defining the site perimeter as [latitude, longitude] pairs
+          items:
+            type: array
+            minItems: 2
+            maxItems: 2
+            items:
+              type: number
+              format: double
+    NewSiteRequest:
+      type: object
+      required:
         - name
         - latitude
         - longitude
@@ -273,7 +331,7 @@ components:
           type: string
           description: Physical address of the site
           example: "5740 Martin Luther King Jr Way S, Seattle, WA 98118"
-        cell_id:
+        cell_ids:
           type: array
           description: Array of cell identifiers associated with the site
           items:
@@ -283,7 +341,7 @@ components:
           type: string
           description: Optional color identifier for the site in hex code 
           example: "#FF5733"
-        boundary:
+        boundaries:
           type: array
           description: Optional geographical boundary coordinates defining the site perimeter as [latitude, longitude] pairs
           items:
@@ -1309,7 +1367,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Site'
+              $ref: '#/components/schemas/NewSiteRequest'
       responses:
         '201':
           description: Site successfully created
@@ -1341,7 +1399,7 @@ paths:
                 example: "database error"
     delete:
       summary: Delete a site
-      description: Removes an existing site from the system
+      description: Removes an existing site from the system using its unique identity
       security:
         - sessionAuth: []
       requestBody:
@@ -1349,7 +1407,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Site'
+              type: object
+              required:
+                - identity
+              properties:
+                identity:
+                  type: string
+                  description: The unique identifier of the site to delete
+                  example: "123e4567-e89b-12d3-a456-426614174000"
       responses:
         '200':
           description: Site successfully deleted
